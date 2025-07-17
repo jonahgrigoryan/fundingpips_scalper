@@ -1,0 +1,39 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-strict.txt || true
+          pip install ruff black pytest pytest-cov
+      - name: Lint
+        run: ruff check --select E,F .
+      - name: Test
+        run: pytest --cov=src --cov-fail-under=90
+  backtest-ci:
+    needs: pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install requirements
+        run: pip install ruff pytest
+      - name: Quick back-test
+        run: |
+          python - <<'PY'
+          import time, importlib
+          from src import strategy
+          start = time.time()
+          signals = strategy.generate_signals()
+          assert signals == []
+          print('backtest-ci placeholder completed in', time.time()-start, 's')
+          PY
