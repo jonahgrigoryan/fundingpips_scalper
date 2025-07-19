@@ -2,4 +2,4 @@
 
 def main():
     """Not implemented scaffold."""
-    print("Not implemented in scaffold")  # pragma: no cover
+    print("Not implemented")  # pragma: no cover

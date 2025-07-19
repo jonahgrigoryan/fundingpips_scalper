@@ -19,7 +19,7 @@ jobs:
           pip install -e .
       - name: Lint
         run: ruff check --select E,F .
-      - name: Tests + coverage
+      - name: Tests & coverage
         run: pytest --cov=src --cov-fail-under=90
 
   backtest-ci:
