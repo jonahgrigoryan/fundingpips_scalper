@@ -17,3 +17,7 @@ source = ["src"]
 [tool.coverage.report]
 fail_under = 90
 show_missing = true
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
