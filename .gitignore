@@ -26,3 +26,7 @@ venv/
 htmlcov/
 .coverage
 .pytest_cache/
+
+# User feedback: ignore generated CSVs
+EURUSD_M15_in.csv
+EURUSD_M15_out.csv
