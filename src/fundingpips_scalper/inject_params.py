@@ -3,4 +3,4 @@ __all__ = ["main"]
 
 def main() -> None:  # pragma: no cover
     """No-op CLI entry-point used by tests."""
-    print("inject_params stub OK")
+    print("Not implemented – inject_params stub")  # pragma: no cover
