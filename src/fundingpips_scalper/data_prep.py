@@ -2,22 +2,13 @@ import pandas as pd
 import numpy as np
 import pathlib
 import datetime
-import typing
+import pandas as pd
+import qlib  # noqa: F401
 
-DEFAULT_CACHE = str(pathlib.Path("~/.qlib/qlib_data/forex").expanduser())
+...
 
-__all__ = ["load_data"]
-
-
-def _read_csv(path: typing.Union[str, pathlib.Path]) -> pd.DataFrame:
-    df = pd.read_csv(path, parse_dates=["datetime"], infer_datetime_format=True)
-    return df
-
-
-def _generate_synthetic(n_days: int = 10) -> pd.DataFrame:
-    # M15 data: 4 points per hour * 24 hours * n_days
-    periods = n_days * 24 * 4
-    dt_start = pd.Timestamp(datetime.datetime.now().date() - datetime.timedelta(days=n_days))
+    today = datetime.datetime.now().date()
+    dt_start = pd.Timestamp(today - datetime.timedelta(days=n_days))
     datetimes = pd.date_range(dt_start, periods=periods, freq="15min", tz="UTC")
     np.random.seed(42)
     base_price = 1.10
