@@ -42,7 +42,7 @@ jobs:
       - name: Backtest pipeline
         run: |
           python - <<'PY'
-          from src import data_prep, strategy
+          from fundingpips_scalper import data_prep, strategy
           assert data_prep.load_data("tests/fixtures/EURUSD_M15_sample.csv")
           assert strategy.generate_signals() == []
           print("stub back-test OK")
