@@ -1,4 +1,4 @@
-import src.fundingpips_reward
+from fundingpips_scalper import fundingpips_reward
 
 def test_evaluate():
-    assert src.fundingpips_reward.evaluate() == 0.0
+    assert fundingpips_reward.evaluate() == 0.0

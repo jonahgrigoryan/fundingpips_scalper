@@ -1,5 +1,5 @@
-import src.inject_params as ip
-import src.run_self_loop as rsl
+from fundingpips_scalper import inject_params as ip
+from fundingpips_scalper import run_self_loop as rsl
 
 def test_stub_mains(capsys):
     ip.main()

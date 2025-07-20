@@ -1,4 +1,4 @@
-import src.strategy
+from fundingpips_scalper import strategy
 
 def test_generate_signals():
-    assert src.strategy.generate_signals() == []
+    assert strategy.generate_signals() == []
