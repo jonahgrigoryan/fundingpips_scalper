@@ -11,8 +11,7 @@ minversion = "6.0"
 addopts = "-ra -q --cov=src --cov-fail-under=90"
 
 [tool.coverage.run]
-branch = true
-source = ["src"]
+source = ["fundingpips_scalper"]
 
 [tool.coverage.report]
 fail_under = 90
