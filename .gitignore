@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.env
+.venv
+env/
+venv/
+*.sqlite3
+*.log
+
+# IDEs and OS
+.idea/
+.vscode/
+.DS_Store
+
+# Test & coverage
+.cache/
+htmlcov/
+.coverage
+.pytest_cache/
+
+# User feedback: ignore generated CSVs
+EURUSD_M15_in.csv
+EURUSD_M15_out.csv
