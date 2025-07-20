@@ -49,9 +49,7 @@ def _forward_fill_gaps(df: pd.DataFrame) -> pd.DataFrame:
 
 def _write_qlib(df: pd.DataFrame, cache_dir: typing.Union[str, pathlib.Path]) -> None:
     try:
-        import qlib
-        from qlib.data import D
-        from qlib.data.dataset.handler import DataHandlerLP
+        import qlib  # noqa: F401
     except ImportError:
         print("qlib not installed, skipping qlib cache write.")
         return
