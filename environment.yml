@@ -9,3 +9,7 @@ dependencies:
       - ruff
       - black
       - coverage
+      - pandas~=3.0
+      - numpy~=1.27
+      - pandas~=3.0
+      - numpy~=1.27
