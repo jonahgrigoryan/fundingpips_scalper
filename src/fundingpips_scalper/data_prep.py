@@ -1,9 +1,12 @@
-import pandas as pd
-import numpy as np
-import pathlib
 import datetime
+import pathlib
+import typing
+
+import numpy as np
 import pandas as pd
-import qlib  # noqa: F401
+
+DEFAULT_CACHE = str(pathlib.Path("~/.qlib/qlib_data/forex").expanduser())
+__all__ = ["load_data"]
 
 ...
 
