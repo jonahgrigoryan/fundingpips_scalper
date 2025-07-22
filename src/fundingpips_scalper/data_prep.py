@@ -29,12 +29,11 @@ def _read_csv(path: str | pathlib.Path) -> pd.DataFrame:
 
     # Normalise time column name.
     if "datetime" in df.columns:
-        ts_col = "datetime"
+        pass  # already correct
     elif "timestamp" in df.columns:
-        ts_col = "timestamp"
         df = df.rename(columns={"timestamp": "datetime"})
     else:
-        raise ValueError("CSV missing datetime/timestamp column")
+        raise ValueError("CSV must contain a 'datetime' or 'timestamp' column")
 
     # Parse to timezone-aware UTC timestamps.
     df["datetime"] = pd.to_datetime(df["datetime"], utc=True)
@@ -94,7 +93,11 @@ def _forward_fill_gaps(df: pd.DataFrame) -> pd.DataFrame:
     return df.ffill()
 
 
-def _write_qlib(df: pd.DataFrame, cache_dir: str | pathlib.Path) -> None:  # pragma: no cover
+# Note: keeping signature ≤ 88 chars to appease Ruff E501.
+def _write_qlib(
+    df: pd.DataFrame,
+    cache_dir: str | pathlib.Path,
+) -> None:  # pragma: no cover
     """Export data in a minimal Qlib folder structure (best-effort).
 
     If ``qlib`` is not installed this becomes a no-op. The function is only
