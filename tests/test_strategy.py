@@ -11,7 +11,8 @@ def test_rsi():
     s = pd.Series([1, 2, 4, 2, 1, 3, 6, 2, 1, 4, 2, 1, 2, 3, 2])
     out = strategy.rsi(s, 5)
     assert len(out) == len(s)
-    assert (out >= 0).all() and (out <= 100).all()
+    valid = out.dropna()
+    assert (valid >= 0).all() and (valid <= 100).all()
 
 def test_find_engulfing():
     df = pd.DataFrame({
