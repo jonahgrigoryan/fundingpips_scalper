@@ -23,14 +23,20 @@ __all__ = ["load_data"]
 
 
 def _read_csv(path: str | pathlib.Path) -> pd.DataFrame:
-    """Read a EURUSD M15 CSV file.
+    """Load CSV file and normalise the time column to ``datetime`` (UTC)."""
 
-    The CSV must contain at least the following columns:
-    ``datetime,open,high,low,close,volume``.
-    Datetime will be parsed and returned in UTC.
-    """
+    df = pd.read_csv(path)
 
-    df = pd.read_csv(path, parse_dates=["datetime"], infer_datetime_format=True)
+    # Normalise time column name.
+    if "datetime" in df.columns:
+        ts_col = "datetime"
+    elif "timestamp" in df.columns:
+        ts_col = "timestamp"
+        df = df.rename(columns={"timestamp": "datetime"})
+    else:
+        raise ValueError("CSV missing datetime/timestamp column")
+
+    # Parse to timezone-aware UTC timestamps.
     df["datetime"] = pd.to_datetime(df["datetime"], utc=True)
     return df
 
