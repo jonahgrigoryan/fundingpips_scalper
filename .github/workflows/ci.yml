@@ -45,7 +45,8 @@ jobs:
         run: |
           python - <<'PY'
           from fundingpips_scalper import data_prep, strategy
-          assert data_prep.load_data("tests/fixtures/EURUSD_M15_sample.csv")
+          df = data_prep.load_data("tests/fixtures/EURUSD_M15_sample.csv")
+          assert not df.empty
           assert strategy.generate_signals() == []
           print("stub back-test OK")
           PY
