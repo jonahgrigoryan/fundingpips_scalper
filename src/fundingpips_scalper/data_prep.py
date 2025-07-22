@@ -94,7 +94,7 @@ def _forward_fill_gaps(df: pd.DataFrame) -> pd.DataFrame:
     return df.ffill()
 
 
-def _write_qlib(df: pd.DataFrame, cache_dir: str | pathlib.Path) -> None:
+def _write_qlib(df: pd.DataFrame, cache_dir: str | pathlib.Path) -> None:  # pragma: no cover
     """Export data in a minimal Qlib folder structure (best-effort).
 
     If ``qlib`` is not installed this becomes a no-op. The function is only
@@ -162,13 +162,13 @@ def load_data(
     df = _forward_fill_gaps(df)
 
     # Optionally write Qlib cache and/or initialise qlib.
-    if ensure_qlib:
+    if ensure_qlib:  # pragma: no cover
         _write_qlib(df, DEFAULT_CACHE)
         try:
-            import qlib  # noqa: F401
+            import qlib  # noqa: F401  # pragma: no cover
 
-            qlib.init(provider_uri=DEFAULT_CACHE)
-        except ImportError:
+            qlib.init(provider_uri=DEFAULT_CACHE)  # pragma: no cover
+        except ImportError:  # pragma: no cover
             pass  # Silent – qlib is optional.
 
     return df
