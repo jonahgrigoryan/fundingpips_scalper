@@ -50,3 +50,4 @@ def test_generate_signals_toydata():
     assert isinstance(signals, list)
     for s in signals:
         assert "time" in s and "signal" in s and s["signal"] in (-1, 1)
+        assert "sl" in s and "tp" in s and "size" in s

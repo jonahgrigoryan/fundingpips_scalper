@@ -8,7 +8,16 @@ generation. Designed for flexible param injection and easy testing.
 import numpy as np
 import pandas as pd
 
-__all__ = ["generate_signals", "ema", "rsi", "find_engulfing", "rf_filter_stub"]
+__all__ = [
+    "generate_signals",
+    "ema",
+    "rsi",
+    "find_engulfing",
+    "rf_filter_stub",
+    "atr",
+    "position_size",
+    "daily_drawdown_guard",
+]
 
 
 def ema(series: pd.Series, span: int) -> pd.Series:
@@ -44,6 +53,50 @@ def find_engulfing(df: pd.DataFrame) -> pd.Series:
     return bullish | bearish
 
 
+def atr(df: pd.DataFrame, period: int = 14) -> pd.Series:
+    """Average True Range (ATR) for volatility-based stops."""
+    high = df["high"]
+    low = df["low"]
+    close = df["close"]
+    prev_close = close.shift(1)
+    tr = pd.concat(
+        [
+            (high - low).abs(),
+            (high - prev_close).abs(),
+            (low - prev_close).abs(),
+        ],
+        axis=1,
+    ).max(axis=1)
+    return tr.rolling(period).mean()
+
+def position_size(
+    equity: float, risk_perc: float, atr_val: float, pip_value: float = 10.0
+) -> float:
+    """
+    Calculate position size given equity, risk %, ATR stop, and pip value.
+    pip_value: USD per pip for 1 lot (default 10 for EURUSD).
+    """
+    # Risk per trade (in USD)
+    risk = equity * risk_perc / 100.0
+    # Stop distance in pips (ATR, e.g., 0.0015 is 15 pips)
+    stop_pips = atr_val * 10000
+    if stop_pips == 0:
+        return 0.0
+    lots = risk / (stop_pips * pip_value)
+    return max(0.01, round(lots, 2))  # Minimum 0.01 lot, rounded
+
+def daily_drawdown_guard(
+    equity_curve: np.ndarray, start_equity: float, max_dd: float = 0.03
+) -> bool:
+    """
+    Returns True if daily drawdown allowed, False if breached.
+    equity_curve: array of equity values (per trade or per period)
+    start_equity: initial account balance
+    max_dd: maximum allowed drawdown as fraction (e.g., 0.03 for 3%)
+    """
+    dd = (start_equity - np.min(equity_curve)) / start_equity
+    return dd <= max_dd
+
 def rf_filter_stub(signals: np.ndarray) -> np.ndarray:
     """RandomForestClassifier filter stub: pass-thru for now, returns input."""
     # Placeholder for actual trained RF model
@@ -72,11 +125,19 @@ def generate_signals(
     rsi_period: int = 14,
     rsi_hi: int = 70,
     rsi_lo: int = 30,
+    atr_period: int = 14,
+    atr_sl_mult: float = 2.0,
+    atr_tp_mult: float = 3.0,
+    equity: float = 10_000.0,
+    risk_per_trade: float = 0.5,
+    max_trades: int = 5,
+    start_equity: float = 10_000.0,
+    max_dd: float = 0.03,
 ) -> list:
     """
-    Generate scalping signals with EMA crossover, RSI, engulfing, ML, and filters.
+    Generate scalping signals with EMA crossover, RSI, engulfing, ML, risk.
 
-    Returns a list of dicts: [{"time": ..., "signal": ...}, ...]
+    Returns a list of dicts: [{"time": ..., "signal": ..., "sl": ..., "tp": ..., "size": ...}, ...]
     """
     # For CI, generate synthetic price data if none provided.
     if prices is None:
@@ -107,6 +168,7 @@ def generate_signals(
     df["engulfing"] = find_engulfing(df)
     df["h4_bias"] = h4_bias_stub(df)
     df["spread_ok"] = spread_filter_stub(df)
+    df["atr"] = atr(df, atr_period)
 
     # Entry logic
     long_entry = (
@@ -133,14 +195,34 @@ def generate_signals(
     # Risk guard (stub)
     signals = risk_guard_stub(signals)
 
-    # Output: list of signal dicts
+    # Risk management: ATR-based SL/TP, position sizing, drawdown guard
+    trade_count = 0
     result = []
+    equity_curve = [equity]
     for i, sig in enumerate(signals):
-        if sig != 0:
-            result.append(
-                {
-                    "time": df.loc[i, "datetime"],
-                    "signal": int(sig),
-                }
-            )
+        if sig == 0 or trade_count >= max_trades:
+            continue
+        price = df.loc[i, "close"]
+        atr_val = df.loc[i, "atr"]
+        if np.isnan(atr_val) or atr_val == 0:
+            continue
+        direction = 1 if sig > 0 else -1
+        stop = price - direction * atr_sl_mult * atr_val
+        target = price + direction * atr_tp_mult * atr_val
+        size = position_size(equity, risk_per_trade, atr_val)
+        # Drawdown guard (simulate equity after this trade; stub: ignore PnL)
+        if not daily_drawdown_guard(np.array(equity_curve), start_equity, max_dd):
+            break
+        result.append(
+            {
+                "time": df.loc[i, "datetime"],
+                "signal": int(sig),
+                "sl": stop,
+                "tp": target,
+                "size": size,
+            }
+        )
+        trade_count += 1
+        # For now, just append same equity (stub)
+        equity_curve.append(equity)
     return result
