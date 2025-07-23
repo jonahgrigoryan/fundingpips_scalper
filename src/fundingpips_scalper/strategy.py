@@ -13,7 +13,7 @@ __all__ = [
     "ema",
     "rsi",
     "find_engulfing",
-    "rf_filter_stub",
+    "rf_filter",
     "atr",
     "position_size",
     "daily_drawdown_guard",
@@ -97,10 +97,32 @@ def daily_drawdown_guard(
     dd = (start_equity - np.min(equity_curve)) / start_equity
     return dd <= max_dd
 
-def rf_filter_stub(signals: np.ndarray) -> np.ndarray:
-    """RandomForestClassifier filter stub: pass-thru for now, returns input."""
-    # Placeholder for actual trained RF model
-    return signals
+def rf_filter(signals: np.ndarray, features: np.ndarray, train_size: int = 50, n_estimators: int = 10, random_state: int = 42) -> np.ndarray:
+    """Apply a minimal RandomForestClassifier filter. Trains on the first train_size signals, applies to remainder."""
+    try:
+        from sklearn.ensemble import RandomForestClassifier
+    except ImportError:
+        # Fallback to pass-through if sklearn is not available
+        return signals
+
+    if len(signals) <= train_size:
+        return signals  # not enough data to split
+
+    X_train, y_train = features[:train_size], signals[:train_size]
+    X_test = features[train_size:]
+    # Only train if there is both class in y_train
+    if len(np.unique(y_train)) < 2:
+        preds = np.zeros_like(signals)
+        preds[:train_size] = y_train
+        return preds
+
+    model = RandomForestClassifier(n_estimators=n_estimators, random_state=random_state)
+    model.fit(X_train, y_train)
+    preds = np.zeros_like(signals)
+    preds[:train_size] = y_train
+    if len(X_test) > 0:
+        preds[train_size:] = model.predict(X_test)
+    return preds
 
 
 def h4_bias_stub(df: pd.DataFrame) -> pd.Series:
@@ -189,8 +211,10 @@ def generate_signals(
     signals[long_entry.values] = 1
     signals[short_entry.values] = -1
 
-    # ML filter (stub)
-    signals = rf_filter_stub(signals)
+    # ML filter (RandomForest)
+    # Use a simple feature set: [ema_fast, ema_slow, rsi, engulfing]
+    features = df[["ema_fast", "ema_slow", "rsi", "engulfing"]].fillna(0).to_numpy()
+    signals = rf_filter(signals, features)
 
     # Risk guard (stub)
     signals = risk_guard_stub(signals)

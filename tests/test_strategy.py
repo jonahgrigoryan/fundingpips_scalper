@@ -23,10 +23,16 @@ def test_find_engulfing():
     assert len(out) == len(df)
     assert out.dtype == bool
 
-def test_rf_filter_stub():
-    arr = np.array([1, -1, 0, 1])
-    out = strategy.rf_filter_stub(arr)
-    assert np.array_equal(arr, out)
+def test_rf_filter_basic():
+    # Make simple feature set that matches signals
+    arr = np.array([1, -1, 1, -1, 1, -1, 1, -1, 1, -1])
+    features = np.vstack([arr, -arr, arr**2, np.ones_like(arr)]).T
+    # Should learn to predict the pattern after training phase
+    out = strategy.rf_filter(arr, features, train_size=6, n_estimators=5)
+    # First train_size should match
+    assert np.array_equal(out[:6], arr[:6])
+    # The rest should be -1 or 1 (never 0)
+    assert set(np.unique(out[6:])).issubset({-1, 1})
 
 def test_generate_signals_synthetic():
     # Should run and return a list (likely non-empty on default random data)
