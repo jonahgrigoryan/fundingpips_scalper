@@ -169,7 +169,8 @@ def generate_signals(
     """
     Generate scalping signals with EMA crossover, RSI, engulfing, ML, risk.
 
-    Returns a list of dicts: [{"time": ..., "signal": ..., "sl": ..., "tp": ..., "size": ...}, ...]
+    Returns a list of dicts, each containing:
+    {"time": ..., "signal": ..., "sl": ..., "tp": ..., "size": ...}
     """
     # For CI, generate synthetic price data if none provided.
     if prices is None:

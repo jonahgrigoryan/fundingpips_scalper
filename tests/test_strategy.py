@@ -38,7 +38,11 @@ def test_generate_signals_synthetic():
     # Should run and return a list (likely non-empty on default random data)
     signals = strategy.generate_signals()
     assert isinstance(signals, list)
-    assert all(isinstance(d, dict) and "time" in d and "signal" in d for d in signals)
+    assert all(
+        isinstance(d, dict)
+        and {"time", "signal", "sl", "tp"} <= d.keys()
+        for d in signals
+    )
 
 def test_generate_signals_toydata():
     # Construct toy data with engineered signals
@@ -91,6 +95,7 @@ def test_generate_signals_params():
 def test_rf_filter_importerror(monkeypatch):
     # Simulate sklearn ImportError and ensure fallback works
     import sys
+    assert "sklearn" not in sys.modules
 
     def fake_import(name, *a, **kw):
         if name == "sklearn.ensemble":
