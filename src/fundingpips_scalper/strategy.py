@@ -97,8 +97,18 @@ def daily_drawdown_guard(
     dd = (start_equity - np.min(equity_curve)) / start_equity
     return dd <= max_dd
 
-def rf_filter(signals: np.ndarray, features: np.ndarray, train_size: int = 50, n_estimators: int = 10, random_state: int = 42) -> np.ndarray:
-    """Apply a minimal RandomForestClassifier filter. Trains on the first train_size signals, applies to remainder."""
+def rf_filter(
+    signals: np.ndarray,
+    features: np.ndarray,
+    train_size: int = 50,
+    n_estimators: int = 10,
+    random_state: int = 42,
+) -> np.ndarray:
+    """
+    Apply a minimal RandomForestClassifier filter to signals.
+    Trains on the first `train_size` samples and predicts for the remainder.
+    If sklearn is unavailable, returns input unchanged.
+    """
     try:
         from sklearn.ensemble import RandomForestClassifier
     except ImportError:

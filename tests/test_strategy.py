@@ -87,3 +87,19 @@ def test_generate_signals_params():
             assert isinstance(s["sl"], float)
             assert isinstance(s["tp"], float)
             assert 0.01 <= s["size"] <= 10
+
+def test_rf_filter_importerror(monkeypatch):
+    # Simulate sklearn ImportError and ensure fallback works
+    import sys
+
+    def fake_import(name, *a, **kw):
+        if name == "sklearn.ensemble":
+            raise ImportError()
+        return orig_import(name, *a, **kw)
+
+    orig_import = __import__
+    monkeypatch.setattr("builtins.__import__", fake_import)
+    arr = np.array([1, 1, -1, 0])
+    features = np.ones((4, 2))
+    out = strategy.rf_filter(arr, features)
+    assert np.array_equal(out, arr)
