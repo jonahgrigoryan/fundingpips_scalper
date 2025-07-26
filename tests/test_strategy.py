@@ -57,3 +57,33 @@ def test_generate_signals_toydata():
     for s in signals:
         assert "time" in s and "signal" in s and s["signal"] in (-1, 1)
         assert "sl" in s and "tp" in s and "size" in s
+
+def test_generate_signals_params():
+    # Check that parameterization works and output structure is correct
+    idx = pd.date_range("2024-03-01", periods=20, freq="15min", tz="UTC")
+    vals = np.linspace(1.105, 1.115, 20)
+    df = pd.DataFrame({
+        "datetime": idx,
+        "open": vals - 0.0001,
+        "high": vals + 0.0002,
+        "low": vals - 0.0002,
+        "close": vals,
+        "volume": np.random.randint(120, 240, 20),
+    })
+    signals = strategy.generate_signals(
+        prices=df,
+        ema_fast=3,
+        ema_slow=6,
+        rsi_period=5,
+        atr_period=4,
+        atr_sl_mult=1.5,
+        atr_tp_mult=2.0,
+        equity=5000,
+        risk_per_trade=0.75,
+    )
+    assert isinstance(signals, list)
+    if signals:
+        for s in signals:
+            assert isinstance(s["sl"], float)
+            assert isinstance(s["tp"], float)
+            assert 0.01 <= s["size"] <= 10
