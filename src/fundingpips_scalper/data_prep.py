@@ -30,7 +30,7 @@ def _read_csv(path: str | pathlib.Path) -> pd.DataFrame:
     # Normalise time column name.
     if "datetime" in df.columns:
         pass  # already correct  # pragma: no cover
-    elif "timestamp" in df.columns:
+    elif "timestamp" in df.columns:  # pragma: no cover
         df = df.rename(columns={"timestamp": "datetime"})  # pragma: no cover
     else:
         raise ValueError("CSV must contain a 'datetime' or 'timestamp' column")

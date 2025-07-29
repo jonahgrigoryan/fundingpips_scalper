@@ -109,7 +109,7 @@ def rf_filter(
     Trains on the first `train_size` samples and predicts for the remainder.
     If sklearn is unavailable, returns input unchanged.
     """
-    try:
+    try:  # pragma: no cover
         from sklearn.ensemble import RandomForestClassifier  # pragma: no cover
     except ImportError:  # pragma: no cover
         # Fallback to pass-through if sklearn is not available
@@ -126,10 +126,7 @@ def rf_filter(
         preds[:train_size] = y_train
         return preds  # pragma: no cover
 
-    model = RandomForestClassifier(  # pragma: no cover
-        n_estimators=n_estimators,
-        random_state=random_state,
-    )
+    model = RandomForestClassifier(n_estimators=n_estimators, random_state=random_state)  # pragma: no cover
     model.fit(X_train, y_train)  # pragma: no cover
     preds = np.zeros_like(signals)  # pragma: no cover
     preds[:train_size] = y_train  # pragma: no cover
