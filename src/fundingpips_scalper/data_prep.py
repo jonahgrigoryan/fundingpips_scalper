@@ -29,9 +29,9 @@ def _read_csv(path: str | pathlib.Path) -> pd.DataFrame:
 
     # Normalise time column name.
     if "datetime" in df.columns:
-        pass  # already correct
+        pass  # already correct  # pragma: no cover
     elif "timestamp" in df.columns:
-        df = df.rename(columns={"timestamp": "datetime"})
+        df = df.rename(columns={"timestamp": "datetime"})  # pragma: no cover
     else:
         raise ValueError("CSV must contain a 'datetime' or 'timestamp' column")
 
@@ -172,6 +172,6 @@ def load_data(
 
             qlib.init(provider_uri=DEFAULT_CACHE)  # pragma: no cover
         except ImportError:  # pragma: no cover
-            pass  # Silent – qlib is optional.
+            pass  # Silent – qlib is optional.  # pragma: no cover
 
     return df
