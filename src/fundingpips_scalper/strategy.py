@@ -126,7 +126,10 @@ def rf_filter(
         preds[:train_size] = y_train
         return preds  # pragma: no cover
 
-    model = RandomForestClassifier(n_estimators=n_estimators, random_state=random_state)  # pragma: no cover
+    model = RandomForestClassifier(  # pragma: no cover
+        n_estimators=n_estimators,
+        random_state=random_state,
+    )
     model.fit(X_train, y_train)  # pragma: no cover
     preds = np.zeros_like(signals)  # pragma: no cover
     preds[:train_size] = y_train  # pragma: no cover
