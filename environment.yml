@@ -1,0 +1,15 @@
+name: fundingpips-scalper
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - pytest
+      - ruff
+      - black
+      - coverage
+      - pandas~=3.0
+      - numpy~=1.27
+      - pandas~=3.0
+      - numpy~=1.27

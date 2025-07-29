@@ -1,0 +1,52 @@
+name: CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-strict.txt || true
+          pip install ruff black pytest pytest-cov
+          pip install pandas numpy
+          pip install -e .
+      - name: Make repo importable
+        run: echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
+      - name: Lint
+        run: ruff check --select E,F .
+      - name: Tests & coverage
+        run: pytest --cov=src --cov-fail-under=90
+
+  backtest-ci:
+    needs: pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff pytest
+          pip install pandas numpy
+          pip install -e .
+      - name: Make repo importable
+        run: echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
+      - name: Backtest pipeline
+        run: |
+          python - <<'PY'
+          from fundingpips_scalper import data_prep, strategy
+          df = data_prep.load_data("tests/fixtures/EURUSD_M15_sample.csv")
+          assert not df.empty
+          assert strategy.generate_signals() == []
+          print("stub back-test OK")
+          PY

@@ -1,0 +1,1 @@
+"""fundingpips-scalper package scaffold."""
